@@ -26,7 +26,7 @@ function TravelForm({ onSubmit }) {
                 type="text"
                 placeholder="Enter dates (e.g. January 10-15)"
                 value={dates}
-                onChange={(e) => setDates(e,target.value)}
+                onChange={(e) => setDates(e.target.value)}
                 required
             />
 
