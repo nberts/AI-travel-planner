@@ -1,8 +1,12 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import OpenAI from 'openai';
 import './App.css'
 import TravelForm from './components/TravelForm'
+
+const client = new OpenAI({
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true,
+});
 
 function App() {
   const [loading, setLoading] = useState(false);
@@ -11,21 +15,26 @@ function App() {
   const handleFormSubmit = async ({ destination, dates, preference }) => {
     setLoading(true);
 
-    //API will be going here.
-
-    await new Promise(res => setTimeout(res, 1000));
-
-    const fakePlan = `
-    Trip to ${destination}
+    const prompt =`
+    I am planning a trip.
+    Destination: ${destination}
     Dates: ${dates}
     Preference: ${preference}
-    Suggested itinerary:
-      - Day 1: Explore the city
-      - Day 2: Visit top attractions
-      - Day 3: Relax and enjoy local cuisine
-    `;
+    Please suggest a short travel itinerary (friendly, simple, 3-5 bullet points),
+    `;                    
 
-    setPlan(fakePlan);
+    try {
+      const response = await client.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [{role: "user", content: prompt}],
+      });
+
+      setPlan(response.choices[0].message.content);
+    } catch (error) {
+      console.error(error);
+      setPlan("Error generating plan. Check console for details.");
+    }
+
     setLoading(false);
   };
 
