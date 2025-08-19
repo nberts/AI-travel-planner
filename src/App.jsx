@@ -4,7 +4,8 @@ import './App.css'
 import TravelForm from './components/TravelForm'
 
 const client = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: import.meta.env.VITE_OPENROUTER_API_KEY,
   dangerouslyAllowBrowser: true,
 });
 
