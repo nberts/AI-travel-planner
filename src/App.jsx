@@ -83,36 +83,39 @@ function App() {
   };
 
   return (
-    <div>
-      <h1>🌎 AI Travel Planner</h1>
+    <div className='min-h-screen bg-gradient-to-br from-sky-100 via-indigo-100 to-indigo-200 p-6'>
+      <div className='max-w-3xl mx-auto bg-white shadow-lg rounded-xl p-8'>
+        <h1 className='text-4xl font-extrabold text-center text-indigo-700 mb-6'>
+          🌎 AI Travel Planner
+        </h1>
 
-      <TravelForm onSubmit={handleFormSubmit} />
-      {loading && <p> ✨ Generating your plan...</p>}
+        <TravelForm onSubmit={handleFormSubmit} />
 
-      {parsedPlan.length > 0 ? (
-        <div>
-          <h2>Your Itinerary</h2> 
-          <ul>
-            {parsedPlan.map((day, index) => (
-              <li key={index}>
-                <strong>{day.day}</strong>
-                <ul>
-                  {day.activities.map((act, i) => (
-                    <li key={i}>{act}</li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        plan && (
-          <div>
-            <h2>Your Itinerary</h2>
-            <pre>{plan}</pre>
+        {loading && <p className='text-center text-indigo-600 mt-4 animate-pulse'> ✨ Generating your plan...</p>}
+
+        {parsedPlan.length > 0 ? (
+          <div className='mt-6 space-y-4'>
+            <h2 className='text-2xl font-semibold text-indigo-800'>Your Itinerary</h2> 
+              {parsedPlan.map((day, index) => (
+                <div key={index} className='bg-white border border-indigo-200 rounded-lg shadow-md p-4 hover:shadow-lg transition'>
+                  <h3 className='font-bold text-indigo-600'>{day.day}</h3>
+                  <ul className='list-dic list-inside text-gray-700 mt-2'>
+                    {day.activities.map((act, i) => (
+                      <li key={i}>{act}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
           </div>
-        )
-      )}
+        ) : (
+          plan && (
+            <div>
+              <h2>Your Itinerary</h2>
+              <pre>{plan}</pre>
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
 }
