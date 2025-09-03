@@ -14,7 +14,7 @@ const client = new OpenAI({
 function parseItinerary(text) {
   if (!text) return [];
 
-  const lines = text.split("\n").map(l => l.ttrim()).filter(Boolean);
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
   const days = [];
   let current = null;
 
