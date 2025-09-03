@@ -21,7 +21,7 @@ function App() {
     //parse dates
     let tripLength = 5; //default value
     try {
-      const parts = dates.split(/-|to/):
+      const parts = dates.split(/-|to/);
       if (parts.length === 2) {
         const start = parse(parts[0].trim(), "MMMM d, yyyy", new Date());
         const end = parse(parts[1].trim(), "MMMM d, yyyy", new Date());
