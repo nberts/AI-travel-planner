@@ -11,22 +11,39 @@ const client = new OpenAI({
   dangerouslyAllowBrowser: true,
 });
 
+function parseItinerary(text) {
+  if (!text) return [];
+
+  const lines = text.split("\n").map(l => l.ttrim()).filter(Boolean);
+  const days = [];
+  let current = null;
+
+  lines.forEach(line => {
+    const dayMatch = line.match(/^(Day\s*\d+[:.-]?)/i);
+      if (dayMatch) {
+        if (current) days.push(current);
+        current = { day: dayMatch[1], actvities: [] };
+        const rest = line.replace(dayMatch[1], "").trim();
+        if (rest) current.actvities.push(rest);
+      } else if (current) {
+        current.activities.push(line);
+      }
+    });
+    if (current) days.push(current);
+    return days;
+}
+
 function App() {
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState("");
+  const [parsedPlan, setParsedPlan] = useState([]);
 
   const handleFormSubmit = async ({ destination, startDate, endDate, preference, variety }) => {
     setLoading(true);
 
     //calculate days in trip
     const days = differenceInDays(endDate, startDate) +1;
-
-    // adjust number suggestions
-    let numSuggestions = 5;
-    if (days <=3) numSuggestions = 3;
-    else if (days <= 7) numSuggestions = 5;
-    else if (days <= 14) numSuggestions = 7;
-    else numSuggestions = 10;
+    let numSuggestions = days <= 3 ? 3 : days <= 7 ? 5 : days <= 14 ? 7 : 10;
 
     const formattedStart = format(startDate, "MMMM d, yyyy");
     const formattedEnd = format(endDate, "MMMM d, yyyy");
@@ -53,10 +70,13 @@ function App() {
         messages: [{role: "user", content: prompt}],
       });
 
-      setPlan(response.choices[0]?.message?.content || "No response");
+      const content = response.choices[0]?.message?.content || "";
+      setPlan(content);
+      setParsedPlan(parseItinerary(content));
     } catch (error) {
       console.error(error);
       setPlan("Error generating plan. Try again.");
+      setParsedPlan([]);
     }
 
     setLoading(false);
@@ -64,17 +84,34 @@ function App() {
 
   return (
     <div>
-      <h1>AI Travel Planner</h1>
+      <h1>🌎 AI Travel Planner</h1>
 
       <TravelForm onSubmit={handleFormSubmit} />
-
       {loading && <p> ✨ Generating your plan...</p>}
 
-      {plan && (
+      {parsedPlan.length > 0 ? (
         <div>
-          <h2>Your itinerary</h2> 
-          <pre>{plan}</pre>
+          <h2>Your Itinerary</h2> 
+          <ul>
+            {setParsedPlan.map((day, index) => (
+              <li key={index}>
+                <strong>{day.day}</strong>
+                <ul>
+                  {day.activities.map((act, i) => (
+                    <li key={i}>{act}</li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
         </div>
+      ) : (
+        plan && (
+          <div>
+            <h2>Your Itinerary</h2>
+            <pre>{plan}</pre>
+          </div>
+        )
       )}
     </div>
   );
