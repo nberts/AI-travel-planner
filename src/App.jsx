@@ -22,7 +22,7 @@ function parseItinerary(text) {
     const dayMatch = line.match(/^(Day\s*\d+[:.-]?)/i);
       if (dayMatch) {
         if (current) days.push(current);
-        current = { day: dayMatch[1], actvities: [] };
+        current = { day: dayMatch[1], activities: [] };
         const rest = line.replace(dayMatch[1], "").trim();
         if (rest) current.actvities.push(rest);
       } else if (current) {
@@ -93,7 +93,7 @@ function App() {
         <div>
           <h2>Your Itinerary</h2> 
           <ul>
-            {setParsedPlan.map((day, index) => (
+            {parsedPlan.map((day, index) => (
               <li key={index}>
                 <strong>{day.day}</strong>
                 <ul>
