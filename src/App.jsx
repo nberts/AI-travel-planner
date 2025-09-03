@@ -2,7 +2,7 @@ import { useState } from 'react';
 import OpenAI from 'openai';
 import './App.css';
 import TravelForm from './components/TravelForm';
-import { parse, differenceInDays } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 
 // OpenRouter config
 const client = new OpenAI({
@@ -15,71 +15,64 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState("");
 
-  const handleFormSubmit = async ({ destination, dates, preference }) => {
+  const handleFormSubmit = async ({ destination, startDate, endDate, preference, variety }) => {
     setLoading(true);
 
-    //parse dates
-    let tripLength = 5; //default value
-    try {
-      const parts = dates.split(/-|to/);
-      if (parts.length === 2) {
-        const start = parse(parts[0].trim(), "MMMM d, yyyy", new Date());
-        const end = parse(parts[1].trim(), "MMMM d, yyyy", new Date());
-        const days = differenceInDays(end, start) + 1;
-
-        if(!isNaN(days) && days >0) {
-          tripLength = days;
-        }
-      }
-    } catch (err) {
-      console.warn("Could not parse dates, using default plan length");
-    }
+    //calculate days in trip
+    const days = differenceInDays(endDate, startDate) +1;
 
     // adjust number suggestions
     let numSuggestions = 5;
-    if (tripLength <=3) numSuggestions = 3;
-    else if (tripLength <= 7) numSuggestions = 5;
-    else if (tripLength <= 14) numSuggestions = 7;
+    if (days <=3) numSuggestions = 3;
+    else if (days <= 7) numSuggestions = 5;
+    else if (days <= 14) numSuggestions = 7;
     else numSuggestions = 10;
+
+    const formattedStart = format(startDate, "MMMM d, yyyy");
+    const formattedEnd = format(endDate, "MMMM d, yyyy");
 
     //prompt
     const prompt =`
     I am planning a trip.
     - Destination: ${destination}
-    - Dates: ${dates}
+    - Dates: ${formattedStart} → ${formattedEnd} (${days} days)
     - Preference: ${preference}
+    - ${variety ? "Please include a mix of categories (museums, outdoors, food, culture, nightlife)." : ""}
 
-    Please suggest an itinerary of about ${numSuggestions} days,
-    with one activity or suggestion per day.
-    Format as a friendly list of ${numSuggestions} bullet points.
-    Please ensure to advise if any attractiion needs booking in advance.
+    Please generate a daily itinerary for ${numSuggestions} days.
+    Each day should have 1-2 suggested activities.
+    Format as:
+    Day 1: ...
+    Day 2: ...
+    etc.
     `;                    
 
     try {
       const response = await client.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "openai/gpt-3.5-turbo",
         messages: [{role: "user", content: prompt}],
       });
 
-      setPlan(response.choices[0].message.content);
+      setPlan(response.choices[0]?.message?.content || "No response");
     } catch (error) {
       console.error(error);
-      setPlan("Error generating plan. Check console for details.");
+      setPlan("Error generating plan. Try again.");
     }
 
     setLoading(false);
   };
 
   return (
-    <div style={{margin: "20px"}}>
+    <div>
       <h1>AI Travel Planner</h1>
+
       <TravelForm onSubmit={handleFormSubmit} />
 
-      {loading && <p> Generating your plan...</p>}
+      {loading && <p> ✨ Generating your plan...</p>}
 
       {plan && (
-        <div style={{marginTop: "20px"}}>
-          <h2>Your AI Travel Plan</h2> 
+        <div>
+          <h2>Your itinerary</h2> 
           <pre>{plan}</pre>
         </div>
       )}
