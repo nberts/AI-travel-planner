@@ -24,7 +24,7 @@ function parseItinerary(text) {
         if (current) days.push(current);
         current = { day: dayMatch[1], activities: [] };
         const rest = line.replace(dayMatch[1], "").trim();
-        if (rest) current.actvities.push(rest);
+        if (rest) current.activities.push(rest);
       } else if (current) {
         current.activities.push(line);
       }

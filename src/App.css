@@ -90,4 +90,5 @@ button:hover {
 .day-card li {
     margin-bottom: 4px;
     color: #374151;
+    list-style: none;
 }
