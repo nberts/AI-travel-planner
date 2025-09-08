@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import OpenAI from 'openai';
-import './index.css';
+import './App.css';
 import TravelForm from './components/TravelForm';
 import { format, differenceInDays } from 'date-fns';
 
@@ -89,23 +89,26 @@ function App() {
           🌎 AI Travel Planner
         </h1>
 
-        <TravelForm onSubmit={handleFormSubmit} />
-
+        <div className='form-container'>
+          <TravelForm onSubmit={handleFormSubmit} />
+        </div>
         {loading && <p> ✨ Generating your plan...</p>}
 
         {parsedPlan.length > 0 ? (
-          <div>
+          <div className='itinerary'>
             <h2>Your Itinerary</h2> 
-              {parsedPlan.map((day, index) => (
-                <div key={index}>
-                  <h3>{day.day}</h3>
-                  <ul>
-                    {day.activities.map((act, i) => (
-                      <li key={i}>{act}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+              <div className='day-grid'>
+                {parsedPlan.map((day, index) => (
+                  <div key={index} className='day-card'>
+                    <strong>{day.day}</strong>
+                    <ul>
+                      {day.activities.map((act, i) => (
+                        <li key={i}>{act}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div> 
           </div>
         ) : (
           plan && (
